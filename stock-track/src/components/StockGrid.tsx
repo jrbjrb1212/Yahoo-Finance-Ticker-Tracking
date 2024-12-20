@@ -60,6 +60,12 @@ const fetchStockData = async (symbol: string): Promise<Stock> => {
   return newStock;
 };
 
+const routeToStockDetails = (stock: string) => {
+  // Endpoint is /research/[stock]
+  console.log("Route to stock details:", stock);
+  window.location.href = `/research/${stock}`;
+};
+
 const StockGrid: React.FC<StockGridProps> = ({
   stockSymbols,
   onRemoveStock,
@@ -132,7 +138,7 @@ const StockGrid: React.FC<StockGridProps> = ({
                   <Button 
                     colorScheme="blue" 
                     size="sm"
-                    onClick={() => console.log("View stock details for", stock.symbol)}  
+                    onClick={() => routeToStockDetails(stock.symbol)}  
                   >
                     Insights
                   </Button>
