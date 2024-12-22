@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Flex, Grid, GridItem, Text } from "@chakra-ui/react";
 import axios from "axios";
+import Theme from "../Theme";
 
 class Stock {
   name: string;
@@ -78,7 +79,7 @@ const StockChartHeader: React.FC = () => {
 
       // Convert to local time
       const localNextMarketOpen = nextMarketOpen.toLocaleString();
-      setMarketOpen(`Market opens tomorrow at ${localNextMarketOpen}`);
+      setMarketOpen(`Market opens tomorrow at ${localNextMarketOpen} EST`);
     }
   }, [stockSymbol]);
 

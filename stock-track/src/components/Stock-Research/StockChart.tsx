@@ -1,6 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Box, Text, Flex, GridItem, Grid, Button } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Flex,
+  GridItem,
+  Grid,
+  Button,
+  Tooltip as ChakraTooltip,
+} from "@chakra-ui/react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,18 +17,25 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   CartesianGrid,
 } from "recharts";
 import axios from "axios";
+import Theme from "../Theme";
 
 const CustomPriceTooltip = ({ payload, label }: any) => {
   if (payload && payload.length) {
     const price = payload[0].value;
     return (
       <div className="custom-tooltip">
-        <p><b>Date: </b>{`${label}`}</p>
-        <p><b>Price: </b>{`$${price.toLocaleString()}`}</p>
+        <p>
+          <b>Date: </b>
+          {`${label}`}
+        </p>
+        <p>
+          <b>Price: </b>
+          {`$${price.toLocaleString()}`}
+        </p>
       </div>
     );
   }
@@ -32,8 +47,12 @@ const CustomVolumeToolTip = ({ payload, label }: any) => {
     const volume = payload[0].value;
     return (
       <div className="custom-tooltip">
-        <p><b>Date: </b> {label}</p>
-        <p><b>Volume: </b> {`${volume.toLocaleString()}`}</p>
+        <p>
+          <b>Date: </b> {label}
+        </p>
+        <p>
+          <b>Volume: </b> {`${volume.toLocaleString()}`}
+        </p>
       </div>
     );
   }
@@ -52,18 +71,45 @@ const formatLargeNumbers = (tick: number) => {
 };
 
 const fetchStockData = async (symbol: string) => {
+  const cacheKey = `stockData_${symbol}`;
+  const cachedItem = localStorage.getItem(cacheKey);
+
+  if (cachedItem) {
+    const { data, timestamp } = JSON.parse(cachedItem);
+
+    // Check if the cache is still valid (15 minutes)
+    const isExpired = new Date().getTime() - timestamp > 15 * 60 * 1000;
+    if (!isExpired) {
+      console.log("Using cached stock data");
+      return data;
+    } else {
+      console.log("Cache expired, fetching new stock data");
+    }
+  }
+
+  // Fetch new data if no cache or cache is expired
   const endpoint = `http://localhost:8000/api/finance/${symbol}/history`;
   try {
     const response = await axios.get(endpoint, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
-    const data = JSON.parse(response.data);
-    return data.map((entry: any) => ({
+    const data = JSON.parse(response.data).map((entry: any) => ({
       date: entry.Date,
       price: entry.Close,
       volume: entry.Volume,
     }));
+
+    // Store fetched data in localStorage with a timestamp
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        data,
+        timestamp: new Date().getTime(),
+      })
+    );
+
+    return data;
   } catch (error) {
     console.error("Error fetching stock data:", error);
     return [];
@@ -132,10 +178,10 @@ const StockChart: React.FC = () => {
     }
 
     // Find min/max price and volume
-    const priceMin = Math.min(...filteredData.map((item) => item.price));
-    const priceMax = Math.max(...filteredData.map((item) => item.price));
-    const volumeMin = Math.min(...filteredData.map((item) => item.volume));
-    const volumeMax = Math.max(...filteredData.map((item) => item.volume));
+    const priceMin = Math.min(...filteredData.map((item: any) => item.price));
+    const priceMax = Math.max(...filteredData.map((item: any) => item.price));
+    const volumeMin = Math.min(...filteredData.map((item: any) => item.volume));
+    const volumeMax = Math.max(...filteredData.map((item: any) => item.volume));
 
     setShownData(filteredData);
     setPriceRange({ min: priceMin, max: priceMax });
@@ -151,23 +197,38 @@ const StockChart: React.FC = () => {
   };
 
   return (
-    <Box width="100%">
-      <Flex justifyContent="space-between">
-        <Flex justifyContent="left" marginBottom={4} gap={1}>
+    <Box mt={4}>
+      <Flex key="timeframes" justifyContent="space-between">
+        <Flex key="timeframe" justifyContent="left" marginBottom={4} gap={1}>
           {Object.keys(timeFrameMap).map((key) => (
-            <Button
-              key={key}
-              onClick={() => toggleTimeFrame(key)}
-              colorScheme="blue"
+            <ChakraTooltip
+              label={`Toggle ${key} Time Frame`}
+              aria-label="Time frame Toggle"
             >
-              {key}
-            </Button>
+              <Button
+                key={key}
+                onClick={() => toggleTimeFrame(key)}
+                backgroundColor={Theme.colors.primary}
+                color={Theme.colors.secondary}
+              >
+                {key}
+              </Button>
+            </ChakraTooltip>
           ))}
         </Flex>
-        <Flex justifyContent="right" marginBottom={4}>
-          <Button onClick={toggleChartType} colorScheme="blue">
-            {chartType === "price" ? "Volume" : "Price"}
-          </Button>
+        <Flex key="charttype" justifyContent="right" marginBottom={4}>
+          <ChakraTooltip
+            label="Toggle Price/Volume"
+            aria-label="Toggle Price/Volume"
+          >
+            <Button
+              onClick={toggleChartType}
+              backgroundColor={Theme.colors.primary}
+              color={Theme.colors.secondary}
+            >
+              {chartType === "price" ? "Volume" : "Price"}
+            </Button>
+          </ChakraTooltip>
         </Flex>
       </Flex>
 
@@ -184,11 +245,11 @@ const StockChart: React.FC = () => {
               tickFormatter={formatLargeNumbers}
               tickCount={6}
             />
-            <Tooltip content={CustomPriceTooltip} />
+            <RechartsTooltip content={CustomPriceTooltip} />
             <Line
               type="monotone"
               dataKey="price"
-              stroke="#8884d8"
+              stroke={Theme.colors.primary}
               strokeWidth={2}
               dot={false}
             />
@@ -205,8 +266,8 @@ const StockChart: React.FC = () => {
               tickFormatter={formatLargeNumbers}
               tickCount={6}
             />
-            <Tooltip content={CustomVolumeToolTip} />
-            <Bar dataKey="volume" fill="#82ca9d" />
+            <RechartsTooltip content={CustomVolumeToolTip} />
+            <Bar dataKey="volume" fill={Theme.colors.text} />
           </BarChart>
         )}
       </ResponsiveContainer>
