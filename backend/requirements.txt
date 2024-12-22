@@ -3,3 +3,4 @@ numpy>=2.1.0
 pandas>=2.2.0
 yfinance>=0.2.11
 structlog>=24.0.0
+uvicorn>=0.32.0
