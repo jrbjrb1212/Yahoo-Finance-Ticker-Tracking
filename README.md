@@ -16,21 +16,21 @@ The app is composed of two parts: a general stock tracking dashboard and a stock
 
 The general stock tracking dashboard allows users to add and remove stocks from their watchlist as well as view general stock data, such as the current price, yesterday's closing price, and the stock's growth percentage.
 
-![Stock Tracking Dashboard](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/tree/main/public/Tracking_Dashboard.png)
+![Stock Tracking Dashboard](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/blob/main/public/Tracking_Dashboard.png)
 
 The stock details page provides more detailed information about the stock, including the company name, and a business summary. Users can also view the stock's historical data, including the stock's closing price, volume, and other relevant metrics. With a detailed price and trading volume graph, users can easily analyze the stock's performance.
 
-![Stock Details Page](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/tree/main/public/Backend_General.png)
+![Stock Details Page](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/blob/main/public/Backend_General.png)
 
 The best analysis can come from viewing historical data using the chart. The chart shows the stock's closing price over time, allowing users to see the stock's performance and identify trends. The chart is filterable by time period from the current date. The user can toggle between 5 days, 1 month, 6 months, 1 year, and max time period. The max time period is all data available for the ticker since it's IPO.
 
 Here is an example of the chart for the stock MSFT (Microsoft Corporation) using all data since it's IPO in March 1986:
 
-![Stock Chart](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/tree/main/public/Max_Price.png)
+![Stock Chart](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/blob/main/public/Max_Price.png)
 
 The chart also offers the ability to toggle between the price and volume. Volume is the number of shares traded, while price is the current price of the stock. Here is an example of the chart for the stock MSFT (Microsoft Corporation) with it's history in the past year, with the volume toggled on:
 
-![Stock Chart with Volume Toggled On](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/tree/main/public/MSFT_Volume.png)
+![Stock Chart with Volume Toggled On](https://github.com/jrbjrb1212/Yahoo-Finance-Ticker-Tracking/blob/main/public/MSFT_Volume.png)
 
 
 ## Technologies Used
