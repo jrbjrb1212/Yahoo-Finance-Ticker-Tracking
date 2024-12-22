@@ -7,10 +7,12 @@ import axios from "axios";
 import BasicInfo from "./BasicInfo";
 import StockChart from "./StockChart";
 import StatsInfo from "./StatsInfo";
+import Navigation from "../Navigation";
 
 // Function to get the stock data.info from api
 import React, { useState, useEffect } from "react";
 import { Flex } from "@chakra-ui/react";
+import StockChartHeader from "./StockChartHeader";
 
 interface StockSymbolProps {
   stockSymbol: string;
@@ -19,7 +21,9 @@ interface StockSymbolProps {
 const StockResearch: React.FC<StockSymbolProps> = ({ stockSymbol }) => {
   return (
     <Flex ml={5} mr={5} direction={"column"} gap={5}>
+      <Navigation />
       <BasicInfo />
+      <StockChartHeader />
       <StockChart />
       <StatsInfo />
     </Flex>
