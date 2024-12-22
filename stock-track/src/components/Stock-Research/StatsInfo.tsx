@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
 import axios from "axios";
+import Theme from "../Theme";
 
 const formatMarketCap = (marketCap: number): string => {
   const absValue = Math.abs(marketCap);
@@ -30,10 +31,8 @@ const formatMarketCap = (marketCap: number): string => {
     suffix = "";
   }
 
-  // Round to 4 significant figures and append suffix
   return `${roundedValue.toPrecision(4)}${suffix}`;
 };
-
 
 class StockStats {
   dayHigh: number;
@@ -66,7 +65,7 @@ class StockStats {
   }
 }
 
-const fetchStockStats = async (symbol: string): Promise<Stock> => {
+const fetchStockStats = async (symbol: string): Promise<StockStats> => {
   const endpoint = `http://localhost:8000/api/finance/${symbol}/stats`;
   const response = await axios.get(endpoint, {
     headers: {
@@ -75,7 +74,6 @@ const fetchStockStats = async (symbol: string): Promise<Stock> => {
     withCredentials: true, // Include cookies if needed
   });
   const data = JSON.parse(response.data);
-  console.log("Data in StatsInfo:", data);
   const newStats = new StockStats(
     data.day_high,
     data.day_low,
@@ -99,61 +97,142 @@ const StatsInfo: React.FC = ({}) => {
       if (stockSymbol) {
         const data = await fetchStockStats(stockSymbol);
         setStockStats(data);
-        console.log("Data:", data);
       }
     };
     getStockStats();
-    setTimeout(() => {
-      console.log("Stats:", stockStats);
-    }, 2500);
+    setTimeout(() => {}, 2500);
   }, [stockSymbol]);
 
   return (
-    <Box mt={2}>
+    <Box
+      outline="1px solid"
+      borderRadius="md"
+      outlineColor={Theme.colors.outline}
+      boxShadow="md"
+      mt={2}
+      textColor={Theme.colors.primary}
+    >
       <Grid
         templateRows="repeat(3, 1fr)"
         templateColumns="repeat(4, 1fr)"
         gap={4}
+        textAlign={"center"}
       >
-        <GridItem colSpan={1} rowSpan={1}>
-          <Text>Daily High: {`$${stockStats?.dayHigh.toLocaleString()}`}</Text>
-        </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
-          <Text>Daily Low: {`$${stockStats?.dayLow.toLocaleString()}`}</Text>
-        </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
           <Text>
-            Market Cap:{" "}
+            <b>Daily High: </b>
+            {`$${stockStats?.dayHigh.toFixed(2)}`}
+          </Text>
+        </GridItem>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
+          <Text>
+            <b>Daily Low: </b>
+            {`$${stockStats?.dayLow.toFixed(2)}`}
+          </Text>
+        </GridItem>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
+          <Text>
+            <b>Market Cap: </b>
             {stockStats ? formatMarketCap(stockStats.marketCap) : ""}
           </Text>
         </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
-          <Text>Beta: {`${stockStats?.beta}`}</Text>
-        </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
           <Text>
-            Trailing P/E: {`$${stockStats?.trailingPE.toLocaleString()}%`}
+            <b>Beta: </b>
+            {`${stockStats?.beta.toFixed(3)}`}
           </Text>
         </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
           <Text>
-            Forward P/E: {`$${stockStats?.forwardPE.toLocaleString()}%`}
+            <b>Trailing P/E: </b>
+            {`${stockStats?.trailingPE.toFixed(2)}%`}
           </Text>
         </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
           <Text>
-            Trailing EPS: {`$${stockStats?.trailingEPS.toLocaleString()}`}
+            <b>Forward P/E: </b>
+            {`${stockStats?.forwardPE.toFixed(2)}%`}
           </Text>
         </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
           <Text>
-            Forward EPS: {`$${stockStats?.forwardEPS.toLocaleString()}`}
+            <b>Trailing EPS: </b>
+            {`$${stockStats?.trailingEPS.toFixed(2)}`}
+          </Text>
+        </GridItem>
+        <GridItem
+          colSpan={1}
+          rowSpan={1}
+          m={2}
+          p={2}
+          borderRadius="md"
+          backgroundColor={Theme.colors.primary}
+          color={Theme.colors.secondary}
+        >
+          <Text>
+            <b>Forward EPS: </b>
+            {`$${stockStats?.forwardEPS.toFixed(2)}`}
           </Text>
         </GridItem>
       </Grid>
     </Box>
   );
 };
-
 
 export default StatsInfo;
