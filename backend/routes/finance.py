@@ -27,6 +27,20 @@ async def get_ticker_data(ticker: str):
         logger.error("Failed to fetch ticker data", ticker=ticker, error=str(e))
         raise HTTPException(status_code=404, detail="Ticker not found")
 
+@finance_router.get('/{ticker}/exists')
+async def get_ticker_exists(ticker: str):
+    try:
+        info = yf.Ticker(ticker).history(
+        period='1d')
+    
+        logger.info("Fetched ticker may exists", ticker=ticker)
+        is_valid: bool = len(info) > 0
+        return_str = {"exists": is_valid}
+        return json.dumps(return_str)
+    except Exception as e:
+        logger.error("Failed to fetch ticker exists", ticker=ticker, error=str(e))
+        raise HTTPException(status_code=404, detail="Ticker not found")
+
 @finance_router.get('/{ticker}/price')
 async def get_ticker_price(ticker: str):
     try:
@@ -77,12 +91,36 @@ async def get_ticker_stats(ticker: str):
     try:
         data = yf.Ticker(ticker)
         ticker_info = data.info
-        daily_high = ticker_info['dayHigh']
-        daily_low = ticker_info['dayLow']
+        day_high = ticker_info['dayHigh']
+        day_low = ticker_info['dayLow']
         market_cap = ticker_info['marketCap']
-        return_str = {"daily_high": daily_high, "daily_low": daily_low, "market_cap": market_cap}
+        trailing_PE = ticker_info['trailingPE']
+        forward_PE = ticker_info['forwardPE']
+        trailing_EPS = ticker_info['trailingEps']
+        forward_EPS = ticker_info['forwardEps']
+        beta = ticker_info['beta']
+        return_str = {"day_high": day_high, "day_low": day_low, "market_cap": market_cap, "trailing_PE": trailing_PE, "forward_PE": forward_PE, "trailing_EPS": trailing_EPS, "forward_EPS": forward_EPS, "beta": beta}
         logger.info("Fetched ticker stats", ticker=ticker)
         return json.dumps(return_str)
     except Exception as e:
         logger.error("Failed to fetch ticker stats", ticker=ticker, error=str(e))
+        raise HTTPException(status_code=404, detail="Ticker not found")
+    
+@finance_router.get('/{ticker}/info')
+async def get_ticker_info(ticker: str):
+    try:
+        data = yf.Ticker(ticker)
+        ticker_info = data.info
+        company_name = ticker_info['shortName']
+        company_summary = ticker_info['longBusinessSummary']
+        sector = ticker_info['sector']
+        number_of_employees = ticker_info['fullTimeEmployees']
+        website_url = ticker_info['website']
+        country = ticker_info['country']
+        
+        return_str = {"company_name": company_name, "company_summary": company_summary, "sector": sector, "number_of_employees": number_of_employees, "website_url": website_url, "country": country}
+        logger.info("Fetched ticker info", ticker=ticker)
+        return json.dumps(return_str)
+    except Exception as e:
+        logger.error("Failed to fetch ticker info", ticker=ticker, error=str(e))
         raise HTTPException(status_code=404, detail="Ticker not found")
