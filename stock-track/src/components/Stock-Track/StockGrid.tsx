@@ -98,7 +98,6 @@ const fetchStockData = async (symbol: string): Promise<Stock> => {
   }
 };
 
-
 const routeToStockDetails = (stock: string) => {
   // Endpoint is /research/[stock]
   console.log("Route to stock details:", stock);
@@ -177,7 +176,12 @@ const StockGrid: React.FC<StockGridProps> = ({
               <Td>{stock.name}</Td>
               <Td isNumeric>${stock.currentPrice.toFixed(2)}</Td>
               <Td isNumeric>${stock.yesterdayClose.toFixed(2)}</Td>
-              <Td isNumeric>{stock.todayGrowth.toFixed(2)}%</Td>
+              <Td
+                isNumeric
+                color={stock.todayGrowth < 0 ? "red.500" : "green.500"}
+              >
+                {stock.todayGrowth.toFixed(2)}%
+              </Td>
               <Td>
                 <Flex gap={2}>
                   <Button
