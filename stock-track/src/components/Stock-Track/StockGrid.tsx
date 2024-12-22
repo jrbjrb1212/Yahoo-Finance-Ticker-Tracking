@@ -13,6 +13,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import axios from "axios";
+import Theme from "../Theme";
 
 type StockGridProps = {
   stockSymbols: string[];
@@ -42,23 +43,61 @@ class Stock {
 }
 
 const fetchStockData = async (symbol: string): Promise<Stock> => {
+  const cacheKey = `stockDataFinance_${symbol}`;
+  const cachedItem = localStorage.getItem(cacheKey);
+
+  if (cachedItem) {
+    const { data, timestamp } = JSON.parse(cachedItem);
+
+    // Check if the cache is still valid (15 minutes)
+    const isExpired = new Date().getTime() - timestamp > 15 * 60 * 1000;
+    if (!isExpired) {
+      console.log(`Using cached data for ${symbol}`);
+      return new Stock(
+        data.company_name,
+        data.company_ticker,
+        data.current_price,
+        data.yesterday_close,
+        data.today_growth
+      );
+    } else {
+      console.log(`Cache expired for ${symbol}, fetching new data`);
+    }
+  }
+
+  // Fetch new data if no cache or cache is expired
   const endpoint = `http://localhost:8000/api/finance/${symbol}`;
-  const response = await axios.get(endpoint, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    withCredentials: true, // Include cookies if needed
-  });
-  const data = JSON.parse(response.data);
-  const newStock = new Stock(
-    data.company_name,
-    data.company_ticker,
-    data.current_price,
-    data.yesterday_close,
-    data.today_growth
-  );
-  return newStock;
+  try {
+    const response = await axios.get(endpoint, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    const data = JSON.parse(response.data);
+
+    // Store fetched data in localStorage with a timestamp
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        data,
+        timestamp: new Date().getTime(),
+      })
+    );
+
+    return new Stock(
+      data.company_name,
+      data.company_ticker,
+      data.current_price,
+      data.yesterday_close,
+      data.today_growth
+    );
+  } catch (error) {
+    console.error(`Error fetching stock data for ${symbol}:`, error);
+    throw error;
+  }
 };
+
 
 const routeToStockDetails = (stock: string) => {
   // Endpoint is /research/[stock]
@@ -89,7 +128,7 @@ const StockGrid: React.FC<StockGridProps> = ({
     };
 
     fetchAllStocks();
-  }, [stockSymbols]); // Dependency on stockSymbols to trigger re-fetch on changes
+  }, [stockSymbols]);
 
   if (loading) {
     return (
@@ -103,19 +142,32 @@ const StockGrid: React.FC<StockGridProps> = ({
   }
 
   return (
-    <Box padding="4" boxShadow="md" borderRadius="md">
-      <Heading as="h1" size="lg" mb="4">
+    <Box
+      boxShadow="md"
+      padding="4"
+      outline="1px solid"
+      borderRadius="md"
+      outlineColor={Theme.colors.outline}
+      textColor={Theme.colors.primary}
+    >
+      <Heading as="h1" size="lg">
         Stock Data
       </Heading>
-      <Table>
+      <Table mt={4}>
         <Thead>
           <Tr>
-            <Th>Stock Name</Th>
-            <Th>Symbol</Th>
-            <Th isNumeric>Current Price</Th>
-            <Th isNumeric>Yesterday Close</Th>
-            <Th isNumeric>Growth</Th>
-            <Th>Actions</Th>
+            <Th textColor={Theme.colors.primary}>Stock Name</Th>
+            <Th textColor={Theme.colors.primary}>Symbol</Th>
+            <Th textColor={Theme.colors.primary} isNumeric>
+              Current Price
+            </Th>
+            <Th textColor={Theme.colors.primary} isNumeric>
+              Yesterday Close
+            </Th>
+            <Th textColor={Theme.colors.primary} isNumeric>
+              Growth
+            </Th>
+            <Th textColor={Theme.colors.primary}>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -135,10 +187,11 @@ const StockGrid: React.FC<StockGridProps> = ({
                   >
                     Remove
                   </Button>
-                  <Button 
-                    colorScheme="blue" 
+                  <Button
+                    backgroundColor={Theme.colors.primary}
+                    color={Theme.colors.secondary}
                     size="sm"
-                    onClick={() => routeToStockDetails(stock.symbol)}  
+                    onClick={() => routeToStockDetails(stock.symbol)}
                   >
                     Insights
                   </Button>
