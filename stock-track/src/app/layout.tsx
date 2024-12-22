@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ChakraProvider } from "@chakra-ui/react";
+import Theme from "@/components/Theme";
 
 export const metadata: Metadata = {
   title: "Simple Stock Track",
@@ -13,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body style={{ backgroundColor: Theme.colors.background }}>
         <ChakraProvider>{children}</ChakraProvider>
       </body>
     </html>
